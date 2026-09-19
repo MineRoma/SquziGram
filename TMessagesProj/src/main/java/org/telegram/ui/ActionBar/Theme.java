@@ -8995,6 +8995,15 @@ public class Theme {
                 || key_chat_stickerReplyLine == key || key_chat_stickerReplyNameText == key || key_chat_stickerReplyMessageText == key)) {
             return 0xffffffff;
         }
+        // SquziGram: кастомный цветовой акцент
+        try {
+            Integer squziAccent = org.telegram.squzi.SquziCustomization.overrideColor(key);
+            if (squziAccent != null) {
+                return squziAccent;
+            }
+        } catch (Throwable t) {
+            FileLog.e(t);
+        }
         if (currentTheme == defaultTheme) {
             boolean useDefault;
             if (isMyMessagesBubbles(key)) {

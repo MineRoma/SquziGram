@@ -4260,6 +4260,24 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
         final SendMessageChatArguments sendMessageChatArguments = sendMessageParams.sendMessageChatArguments != null ?
                 sendMessageParams.sendMessageChatArguments : SendMessageChatArguments.EMPTY;
         String message = sendMessageParams.message;
+        // SquziGram: хук исходящих сообщений для плагинов (exteraGram add_on_send_message_hook)
+        if (message != null) {
+            try {
+                org.telegram.squzi.SquziPluginRuntime.OutgoingResult squziResult =
+                        org.telegram.squzi.SquziPluginRuntime.processOutgoingText(currentAccount, message);
+                if (squziResult != null) {
+                    if (squziResult.cancel) {
+                        return;
+                    }
+                    if (squziResult.text != null && !squziResult.text.equals(message)) {
+                        message = squziResult.text;
+                        sendMessageParams.message = squziResult.text;
+                    }
+                }
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+        }
         String caption = sendMessageParams.caption;
         TLRPC.MessageMedia location = sendMessageParams.location;
         TLRPC.TL_photo photo = sendMessageParams.photo;

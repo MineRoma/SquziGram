@@ -1,6 +1,7 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.chaquo.python'
 apply plugin: 'org.telegram.build-plugin'
 apply plugin: 'idea'
 
@@ -139,7 +140,8 @@ android {
 
 
     defaultConfig {
-        minSdkVersion 21
+        // SquziGram: minSdk 24 — требование Chaquopy (Python-движок плагинов)
+        minSdkVersion 24
         targetSdkVersion 36
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
@@ -149,7 +151,7 @@ android {
         externalNativeBuild {
             cmake {
                 version '3.22.1'
-                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21' //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
+                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-24' //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
                 targets 'tmessages.49'
             }
         }
@@ -236,6 +238,15 @@ android {
     }
 
     namespace 'org.telegram.messenger'
+}
+
+// SquziGram: Python-движок плагинов (формат exteraGram).
+// Python 3.11 — как в exteraGram, поддерживает все ABI телеграма включая 32-битные.
+// На машине для сборки нужен Python 3.11 (buildPython).
+chaquopy {
+    defaultConfig {
+        version "3.11"
+    }
 }
 
 

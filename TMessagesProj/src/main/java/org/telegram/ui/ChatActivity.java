@@ -786,6 +786,8 @@ public class ChatActivity extends BaseFragment implements
 
     private MessageObject selectedObjectToEditCaption;
     private MessageObject selectedObject;
+    // SquziGram: пункты меню плагинов для текущего открытого меню
+    private java.util.List<org.telegram.squzi.SquziPluginRuntime.MenuItem> squziMenuItems;
     private MessageObject.GroupedMessages selectedObjectGroup;
     private boolean forbidForwardingWithDismiss;
     public MessagePreviewParams messagePreviewParams;
@@ -1247,6 +1249,9 @@ public class ChatActivity extends BaseFragment implements
 
     public final static int OPTION_VIEW_STATISTICS = 115;
     public final static int OPTION_WELCOME_REVERT = 116;
+
+    // SquziGram: пункты меню плагинов занимают 90000..90099
+    public final static int OPTION_SQUIZI_BASE = 90000;
 
     private final static int[] allowedNotificationsDuringChatListAnimations = new int[]{
             NotificationCenter.messagesRead,
@@ -30931,6 +30936,30 @@ public class ChatActivity extends BaseFragment implements
                 selectedObject = message;
                 selectedObjectGroup = groupedMessages;
                 fillMessageMenu(primaryMessage, icons, items, options);
+                // SquziGram: пункты меню плагинов (exteraGram MESSAGE_CONTEXT_MENU)
+                try {
+                    squziMenuItems = org.telegram.squzi.SquziPluginRuntime.getMessageMenuItems();
+                    if (squziMenuItems != null && !squziMenuItems.isEmpty() && selectedObject != null) {
+                        for (int squziIndex = 0; squziIndex < squziMenuItems.size() && squziIndex < 100; squziIndex++) {
+                            org.telegram.squzi.SquziPluginRuntime.MenuItem squziItem = squziMenuItems.get(squziIndex);
+                            items.add(squziItem.text);
+                            options.add(OPTION_SQUIZI_BASE + squziIndex);
+                            int squziIcon = 0;
+                            try {
+                                if (squziItem.icon != null && !squziItem.icon.isEmpty() && getParentActivity() != null) {
+                                    squziIcon = getParentActivity().getResources().getIdentifier(squziItem.icon, "drawable", getParentActivity().getPackageName());
+                                }
+                            } catch (Throwable ignored) {
+                            }
+                            if (squziIcon == 0) {
+                                squziIcon = R.drawable.msg_copy;
+                            }
+                            icons.add(squziIcon);
+                        }
+                    }
+                } catch (Throwable t) {
+                    FileLog.e(t);
+                }
             }
 
             if (selectedObject != null && selectedObject.isHiddenSensitive() && !selectedObject.isMediaSpoilersRevealed) {
@@ -33287,6 +33316,24 @@ public class ChatActivity extends BaseFragment implements
 
     private void processSelectedOption(int option) {
         if (selectedObject == null || getParentActivity() == null) {
+            return;
+        }
+        // SquziGram: клики по пунктам меню плагинов
+        if (option >= OPTION_SQUIZI_BASE && option < OPTION_SQUIZI_BASE + 100) {
+            try {
+                if (squziMenuItems != null) {
+                    int squziIndex = option - OPTION_SQUIZI_BASE;
+                    if (squziIndex >= 0 && squziIndex < squziMenuItems.size()) {
+                        org.telegram.squzi.SquziPluginRuntime.MenuItem squziItem = squziMenuItems.get(squziIndex);
+                        String squziText = selectedObject.messageOwner != null && selectedObject.messageOwner.message != null
+                                ? selectedObject.messageOwner.message : "";
+                        org.telegram.squzi.SquziPluginRuntime.dispatchMenuItem(squziItem.pluginId, squziItem.itemId,
+                                currentAccount, getDialogId(), selectedObject.getId(), squziText);
+                    }
+                }
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
             return;
         }
         boolean preserveDim = false;

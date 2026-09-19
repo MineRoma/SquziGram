@@ -12,6 +12,10 @@
 -keep class org.webrtc.audio.* { *; }
 -keep class org.webrtc.voiceengine.* { *; }
 -keep class org.telegram.messenger.* { *; }
+# SquziGram: движок плагинов — Python дёргает Java через рефлексию, не даём переименовать
+-keep class org.telegram.squzi.** { *; }
+-keep class org.telegram.ui.** { *; }
+-keep class org.telegram.tgnet.** { *; }
 -keep class org.telegram.messenger.camera.* { *; }
 -keep class org.telegram.messenger.secretmedia.* { *; }
 -keep class org.telegram.messenger.support.* { *; }

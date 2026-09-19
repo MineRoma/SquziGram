@@ -17854,6 +17854,14 @@ public class MessagesController extends BaseController implements NotificationCe
 
     // must be run from Utilities.stageQueue
     public void processUpdates(final TLRPC.Updates updates, boolean fromQueue) {
+        // SquziGram: хук входящих апдейтов для плагинов (exteraGram add_hook)
+        if (updates != null) {
+            try {
+                org.telegram.squzi.SquziPluginRuntime.processUpdates(currentAccount, updates);
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+        }
         ArrayList<Long> needGetChannelsDiff = null;
         boolean needGetDiff = false;
         boolean needReceivedQueue = false;

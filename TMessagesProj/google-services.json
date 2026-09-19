@@ -8,6 +8,63 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:760348033671:android:00000000000000a1",
+        "android_client_info": {
+          "package_name": "pizduk.squzigram.zov"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-t0jLPjUt2FxrA8VPK2EiYHcYcboIR6k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760348033671:android:00000000000000a2",
+        "android_client_info": {
+          "package_name": "pizduk.squzigram.zov.beta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-t0jLPjUt2FxrA8VPK2EiYHcYcboIR6k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760348033671:android:00000000000000a3",
+        "android_client_info": {
+          "package_name": "pizduk.squzigram.zov.web"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-t0jLPjUt2FxrA8VPK2EiYHcYcboIR6k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:760348033671:android:f6afd7b67eae3860",
         "android_client_info": {
           "package_name": "org.telegram.messenger"

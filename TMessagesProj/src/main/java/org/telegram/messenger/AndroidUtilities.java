@@ -4195,6 +4195,16 @@ public class AndroidUtilities {
             f = FileLoader.getInstance(UserConfig.selectedAccount).getPathToMessage(message.messageOwner);
         }
         if (f != null && f.exists()) {
+            // SquziGram: перехват .plugin-файлов (старый путь открытия из поиска/медиа)
+            if (f.getName().toLowerCase().endsWith(".plugin")) {
+                try {
+                    if (org.telegram.squzi.SquziPluginInstallDialog.handleFile(activity, parentFragment != null ? parentFragment.getResourceProvider() : null, f, f.getName())) {
+                        return;
+                    }
+                } catch (Throwable t) {
+                    FileLog.e(t);
+                }
+            }
             if (parentFragment != null && f.getName().toLowerCase().endsWith("attheme")) {
                 Theme.ThemeInfo themeInfo = Theme.applyThemeFile(f, message.getDocumentName(), null, true);
                 if (themeInfo != null) {
@@ -4269,6 +4279,38 @@ public class AndroidUtilities {
     }
 
     public static boolean openForView(File f, String fileName, String mimeType, final Activity activity, Theme.ResourcesProvider resourcesProvider, boolean restrict) {
+        // SquziGram: перехват .plugin-файлов — показываем окно установки плагина вместо системного открытия
+        if (f != null && fileName != null && fileName.toLowerCase().endsWith(".plugin")) {
+            try {
+                if (org.telegram.squzi.SquziPluginInstallDialog.handleFile(activity, resourcesProvider, f, fileName)) {
+                    return true;
+                }
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+        }
+        // SquziGram: .elyx/.eaf архивы и кастомные обработчики расширений от плагинов
+        if (f != null && fileName != null) {
+            String lowerName = fileName.toLowerCase();
+            try {
+                if (lowerName.endsWith(".elyx") || lowerName.endsWith(".eaf")) {
+                    if (org.telegram.squzi.SquziElyxInstaller.handleFile(activity, resourcesProvider, f, fileName)) {
+                        return true;
+                    }
+                } else {
+                    int dot = lowerName.lastIndexOf('.');
+                    if (dot != -1) {
+                        String ext = lowerName.substring(dot + 1);
+                        if (org.telegram.squzi.SquziPluginRuntime.hasFileHandler(ext)
+                                && org.telegram.squzi.SquziPluginRuntime.dispatchFileOpen(ext, f.getAbsolutePath(), fileName)) {
+                            return true;
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+        }
         if (f != null && f.exists()) {
             String realMimeType = null;
             Intent intent = new Intent(Intent.ACTION_VIEW);

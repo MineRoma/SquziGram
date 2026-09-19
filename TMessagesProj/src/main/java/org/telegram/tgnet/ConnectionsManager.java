@@ -386,6 +386,16 @@ public class ConnectionsManager extends BaseController {
     }
 
     public int sendRequest(final TLObject object, final RequestDelegate onComplete, final RequestDelegateTimestamp onCompleteTimestamp, final QuickAckDelegate onQuickAck, final WriteToSocketDelegate onWriteToSocket, final int flags, final int datacenterId, final int connectionType, final boolean immediate) {
+        // SquziGram: хук исходящих запросов для плагинов (exteraGram add_hook)
+        if (object != null) {
+            try {
+                if (org.telegram.squzi.SquziPluginRuntime.processOutgoingRequest(currentAccount, object) == 1) {
+                    return 0;
+                }
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+        }
         final int requestToken = lastRequestToken.getAndIncrement();
         Utilities.stageQueue.postRunnable(() -> {
             sendRequestInternal(object, onComplete, onCompleteTimestamp, onQuickAck, onWriteToSocket, flags, datacenterId, connectionType, immediate, requestToken);

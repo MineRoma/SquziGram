@@ -256,9 +256,11 @@ public class BackupImageView extends View {
     }
 
     public void setRoundRadius(int value) {
-        imageReceiver.setRoundRadius(value);
+        // SquziGram: кастомное скругление аватарок
+        int squziRadius = org.telegram.squzi.SquziCustomization.avatarRadius(value);
+        imageReceiver.setRoundRadius(squziRadius);
         if (blurAllowed) {
-            blurImageReceiver.setRoundRadius(value);
+            blurImageReceiver.setRoundRadius(squziRadius);
         }
         invalidate();
     }

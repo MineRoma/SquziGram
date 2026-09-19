@@ -171,7 +171,7 @@ public class ApplicationLoader extends Application {
         } catch (Exception e) {
             FileLog.e(e);
         }
-        return new File("/data/data/org.telegram.messenger/files");
+        return new File("/data/data/pizduk.squzigram.zov/files");
     }
 
     public static File getFilesDirFixed(String child) {
@@ -353,6 +353,13 @@ public class ApplicationLoader extends Application {
 
         LauncherIconController.tryFixLauncherIconIfNeeded();
         ProxyRotationController.init();
+
+        // SquziGram: запуск Python-движка плагинов в фоне
+        try {
+            org.telegram.squzi.SquziPluginRuntime.initInBackground();
+        } catch (Throwable t) {
+            FileLog.e(t);
+        }
     }
 
     public static void startPushService() {
