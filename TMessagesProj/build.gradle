@@ -148,6 +148,11 @@ android {
 
         multiDexEnabled true
 
+        // SquziGram: abiFilters обязательны для Chaquopy
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+
         externalNativeBuild {
             cmake {
                 version '3.22.1'
