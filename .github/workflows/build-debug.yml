@@ -1,0 +1,53 @@
+name: SquziGram Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Python 3.11 (Chaquopy buildPython)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+
+      - name: Install native build deps
+        run: sudo apt-get update && sudo apt-get install -y ninja-build nasm pkg-config unzip
+
+      - name: Setup Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build debug APK (afat)
+        run: ./gradlew :TMessagesProj_App:assembleAfatDebug --parallel --stacktrace
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SquziGram-debug
+          path: TMessagesProj_App/build/outputs/apk/afat/debug/*.apk
+          if-no-files-found: error
