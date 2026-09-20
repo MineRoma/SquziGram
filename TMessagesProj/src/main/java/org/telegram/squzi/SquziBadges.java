@@ -28,9 +28,10 @@ public class SquziBadges {
     private static final String KEY_TIME = "fetch_time";
     private static final String KEY_ENABLED = "badges_on";
 
-    private static final long REFRESH_MS = 5L * 60 * 60 * 1000;
+    private static final long REFRESH_MS = 15L * 60 * 1000;
     public static final String API_KEY = "zovzovsvozov1337";
     private static final String API_URL = "https://api.winrar.bond/v1/badges?key=" + API_KEY;
+    private static final String PING_URL = "https://api.winrar.bond/v1/ping?key=" + API_KEY;
 
     private static final HashSet<Long> ids = new HashSet<>();
     private static volatile boolean loaded = false;
@@ -124,6 +125,10 @@ public class SquziBadges {
         fetching = true;
         new Thread(() -> {
             try {
+                pingSelf();
+            } catch (Throwable ignored) {
+            }
+            try {
                 HashSet<Long> fresh = fetchIds();
                 if (fresh != null && !fresh.isEmpty()) {
                     synchronized (ids) {
@@ -197,6 +202,42 @@ public class SquziBadges {
         } catch (Throwable t) {
             FileLog.e(t);
             return null;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.disconnect();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+    }
+
+    private static void pingSelf() {
+        long myId = 0;
+        try {
+            myId = org.telegram.messenger.UserConfig.getInstance(
+                    org.telegram.messenger.UserConfig.selectedAccount).getClientUserId();
+        } catch (Throwable ignored) {
+        }
+        if (myId == 0) {
+            return;
+        }
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(PING_URL);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(15000);
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("User-Agent", "SquziGram/1.0");
+            byte[] body = ("{\"id\":" + myId + "}").getBytes("UTF-8");
+            conn.setFixedLengthStreamingMode(body.length);
+            conn.connect();
+            conn.getOutputStream().write(body);
+            conn.getResponseCode();
+        } catch (Throwable ignored) {
         } finally {
             if (conn != null) {
                 try {

@@ -73,7 +73,9 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
+import android.text.style.DynamicDrawableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.Property;
@@ -11432,12 +11434,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 try {
                                     Drawable d = ContextCompat.getDrawable(getParentActivity(), R.drawable.extera);
                                     if (d != null) {
-                                        ColoredImageSpan span = new ColoredImageSpan(d);
-                                        span.setSize(AndroidUtilities.dp(18));
+                                        d.setBounds(0, 0, AndroidUtilities.dp(18), AndroidUtilities.dp(18));
                                         squziSb.append(" ");
                                         int s = squziSb.length();
                                         squziSb.append("x");
-                                        squziSb.setSpan(span, s, s + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        squziSb.setSpan(new ImageSpan(d, DynamicDrawableSpan.ALIGN_BOTTOM), s, s + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     }
                                 } catch (Throwable ignored) {
                                 }
@@ -11446,12 +11447,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 try {
                                     Drawable d = ContextCompat.getDrawable(getParentActivity(), R.drawable.squzi_badge);
                                     if (d != null) {
-                                        ColoredImageSpan span = new ColoredImageSpan(d);
-                                        span.setSize(AndroidUtilities.dp(18));
+                                        d.setBounds(0, 0, AndroidUtilities.dp(18), AndroidUtilities.dp(18));
                                         squziSb.append(" ");
                                         int s = squziSb.length();
                                         squziSb.append("x");
-                                        squziSb.setSpan(span, s, s + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        squziSb.setSpan(new ImageSpan(d, DynamicDrawableSpan.ALIGN_BOTTOM), s, s + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     }
                                 } catch (Throwable ignored) {
                                 }
