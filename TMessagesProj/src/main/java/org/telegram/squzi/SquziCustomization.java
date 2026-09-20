@@ -110,9 +110,35 @@ public class SquziCustomization {
 
     public static void refreshTheme() {
         try {
-            NotificationCenter.getGlobalInstance().postNotificationName(
-                    NotificationCenter.needSetDayNightTheme,
-                    Theme.getActiveTheme(), Theme.isCurrentThemeDark(), null, -1);
+            AndroidUtilities.runOnUIThread(() -> {
+                try {
+                    Theme.refreshThemeColors();
+                } catch (Throwable ignored) {
+                }
+                try {
+                    NotificationCenter.getGlobalInstance().postNotificationName(
+                            NotificationCenter.needSetDayNightTheme,
+                            Theme.getActiveTheme(), Theme.isCurrentThemeDark(), null, -1);
+                } catch (Throwable ignored) {
+                }
+                try {
+                    NotificationCenter.getGlobalInstance().postNotificationName(
+                            NotificationCenter.didSetNewTheme, false, true);
+                } catch (Throwable ignored) {
+                }
+                try {
+                    NotificationCenter.getGlobalInstance().postNotificationName(
+                            NotificationCenter.dialogsNeedReload);
+                } catch (Throwable ignored) {
+                }
+                try {
+                    if (org.telegram.ui.LaunchActivity.instance != null) {
+                        org.telegram.ui.LaunchActivity.instance.rebuildAllFragments(true);
+                        org.telegram.ui.LaunchActivity.instance.checkSystemBarColors(false, true, true);
+                    }
+                } catch (Throwable ignored) {
+                }
+            });
         } catch (Throwable t) {
             FileLog.e(t);
         }

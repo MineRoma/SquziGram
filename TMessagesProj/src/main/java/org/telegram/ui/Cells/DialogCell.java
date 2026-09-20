@@ -83,6 +83,8 @@ import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
+import org.telegram.squzi.SquziBadges;
+import org.telegram.squzi.SquziExteraBadges;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.utils.DrawableUtils;
 import org.telegram.tgnet.ConnectionsManager;
@@ -632,6 +634,16 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
     private boolean drawVerified;
     private boolean drawBotVerified;
     private boolean drawPremium;
+    private boolean drawSquziExteraBadge;
+    private boolean drawSquziBadge;
+    private boolean squziExteraPressed;
+    private boolean squziPressed;
+    private Drawable squziExteraDrawable;
+    private Drawable squziDrawable;
+    private RectF squziExteraRect;
+    private RectF squziRect;
+    private String squziExteraBadgeName;
+    private String squziBadgeName;
     private final View emojiStatusView;
     private final AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable emojiStatus;
     private final AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable botVerification;
@@ -2370,6 +2382,46 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
         }
         if (drawBotVerified) {
             nameWidth -= dp(21);
+        }
+        drawSquziExteraBadge = false;
+        drawSquziBadge = false;
+        squziExteraBadgeName = null;
+        squziBadgeName = null;
+        {
+            long squziUid = user != null ? user.id : (chat != null ? chat.id : 0);
+            String squziName = user != null ? UserObject.getUserName(user) : (chat != null ? chat.title : null);
+            if (squziUid != 0) {
+                try {
+                    if (SquziExteraBadges.isSupporter(squziUid)) {
+                        drawSquziExteraBadge = true;
+                        squziExteraBadgeName = squziName;
+                    }
+                } catch (Throwable ignored) {
+                }
+                try {
+                    if (SquziBadges.hasBadge(squziUid)) {
+                        drawSquziBadge = true;
+                        squziBadgeName = squziName;
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        if (drawSquziExteraBadge) {
+            int w = dp(6 + 20 + 6);
+            nameWidth -= w;
+            nameAdditionalsForChannelSubscriber += w;
+            if (LocaleController.isRTL) {
+                nameLeft += w;
+            }
+        }
+        if (drawSquziBadge) {
+            int w = dp(6 + 20 + 6);
+            nameWidth -= w;
+            nameAdditionalsForChannelSubscriber += w;
+            if (LocaleController.isRTL) {
+                nameLeft += w;
+            }
         }
         if (namePaddingEnd > 0) {
             nameWidth -= namePaddingEnd;
@@ -4502,6 +4554,69 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                 setDrawableBounds((drawScam == 1 ? Theme.dialogs_scamDrawable : Theme.dialogs_fakeDrawable), nameMuteLeft, y);
                 (drawScam == 1 ? Theme.dialogs_scamDrawable : Theme.dialogs_fakeDrawable).draw(canvas);
             }
+            if (drawSquziExteraBadge || drawSquziBadge) {
+                int squziDx = 0;
+                if (drawVerified) {
+                    squziDx = dp(6) + Theme.dialogs_verifiedDrawable.getIntrinsicWidth();
+                } else if (drawPremium) {
+                    squziDx = dp(6 + 24 + 6);
+                } else if (drawScam != 0) {
+                    squziDx = dp(6) + (drawScam == 1 ? Theme.dialogs_scamDrawable : Theme.dialogs_fakeDrawable).getIntrinsicWidth();
+                }
+                int squziY = dp(useForceThreeLines || SharedConfig.useThreeLinesLayout ? 12 : 15);
+                if ((!(useForceThreeLines || SharedConfig.useThreeLinesLayout) || isForumCell()) && hasTags()) {
+                    squziY -= dp(9);
+                }
+                int squziX = nameMuteLeft + squziDx;
+                if (drawSquziExteraBadge) {
+                    if (squziExteraDrawable == null) {
+                        try {
+                            squziExteraDrawable = ContextCompat.getDrawable(getContext(), R.drawable.extera);
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                    if (squziExteraDrawable != null) {
+                        squziExteraDrawable.setBounds(squziX, squziY, squziX + dp(20), squziY + dp(20));
+                        squziExteraDrawable.draw(canvas);
+                        if (squziExteraRect == null) {
+                            squziExteraRect = new RectF();
+                        }
+                        squziExteraRect.set(squziX, squziY, squziX + dp(20), squziY + dp(20));
+                        squziX += dp(20 + 6);
+                    } else if (squziExteraRect != null) {
+                        squziExteraRect.setEmpty();
+                    }
+                } else if (squziExteraRect != null) {
+                    squziExteraRect.setEmpty();
+                }
+                if (drawSquziBadge) {
+                    if (squziDrawable == null) {
+                        try {
+                            squziDrawable = ContextCompat.getDrawable(getContext(), R.drawable.squzi_badge);
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                    if (squziDrawable != null) {
+                        squziDrawable.setBounds(squziX, squziY, squziX + dp(20), squziY + dp(20));
+                        squziDrawable.draw(canvas);
+                        if (squziRect == null) {
+                            squziRect = new RectF();
+                        }
+                        squziRect.set(squziX, squziY, squziX + dp(20), squziY + dp(20));
+                    } else if (squziRect != null) {
+                        squziRect.setEmpty();
+                    }
+                } else if (squziRect != null) {
+                    squziRect.setEmpty();
+                }
+            } else {
+                if (squziExteraRect != null) {
+                    squziExteraRect.setEmpty();
+                }
+                if (squziRect != null) {
+                    squziRect.setEmpty();
+                }
+            }
 
             if (drawReorder || reorderIconProgress != 0) {
                 if (!LocaleController.isRTL) {
@@ -6098,6 +6213,27 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                     return true;
                 }
                 if (hit) return true;
+            }
+            if ((squziExteraRect != null || squziRect != null) && (drawSquziExteraBadge || drawSquziBadge)) {
+                final boolean hitExtera = squziExteraRect != null && drawSquziExteraBadge && squziExteraRect.contains(event.getX(), event.getY());
+                final boolean hitSquzi = !hitExtera && squziRect != null && drawSquziBadge && squziRect.contains(event.getX(), event.getY());
+                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+                    squziExteraPressed = hitExtera;
+                    squziPressed = hitSquzi;
+                } else if ((squziExteraPressed || squziPressed) && event.getAction() == MotionEvent.ACTION_UP) {
+                    if (squziExteraPressed) {
+                        SquziExteraBadges.showSupporterAlert(getContext(), squziExteraBadgeName);
+                    } else {
+                        SquziBadges.showSupporterAlert(getContext(), squziBadgeName);
+                    }
+                    squziExteraPressed = false;
+                    squziPressed = false;
+                    return true;
+                } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    squziExteraPressed = false;
+                    squziPressed = false;
+                }
+                if (hitExtera || hitSquzi) return true;
             }
             if (lastTopicMessageUnread && canvasButton != null && buttonLayout != null && (dialogsType == DialogsActivity.DIALOGS_TYPE_DEFAULT || dialogsType == DialogsActivity.DIALOGS_TYPE_FOLDER1 || dialogsType == DialogsActivity.DIALOGS_TYPE_FOLDER2) && canvasButton.checkTouchEvent(event)) {
                 return true;

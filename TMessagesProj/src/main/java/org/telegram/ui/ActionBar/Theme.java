@@ -8967,7 +8967,16 @@ public class Theme {
 
     public static int getColor(int key, ResourcesProvider provider) {
         if (provider != null) {
-            return provider.getColor(key);
+            int c = provider.getColor(key);
+            try {
+                Integer squziAccent = org.telegram.squzi.SquziCustomization.overrideColor(key);
+                if (squziAccent != null) {
+                    return squziAccent;
+                }
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+            return c;
         }
         return getColor(key);
     }

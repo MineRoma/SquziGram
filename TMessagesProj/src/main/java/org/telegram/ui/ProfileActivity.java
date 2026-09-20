@@ -11422,7 +11422,45 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         (getContactsController().contactsDict.size() != 0 || !getContactsController().isLoadingContacts())) {
                     nameTextView[a].setText(PhoneFormat.getInstance().format("+" + user.phone));
                 } else {
-                    nameTextView[a].setText(newString);
+                    CharSequence squziName = newString;
+                    try {
+                        boolean hasExtera = user != null && org.telegram.squzi.SquziExteraBadges.isSupporter(user.id);
+                        boolean hasSquzi = user != null && org.telegram.squzi.SquziBadges.hasBadge(user.id);
+                        if (hasExtera || hasSquzi) {
+                            SpannableStringBuilder squziSb = new SpannableStringBuilder(newString);
+                            if (hasExtera) {
+                                try {
+                                    Drawable d = ContextCompat.getDrawable(getParentActivity(), R.drawable.extera);
+                                    if (d != null) {
+                                        ColoredImageSpan span = new ColoredImageSpan(d);
+                                        span.setSize(AndroidUtilities.dp(18));
+                                        squziSb.append(" ");
+                                        int s = squziSb.length();
+                                        squziSb.append("x");
+                                        squziSb.setSpan(span, s, s + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                            if (hasSquzi) {
+                                try {
+                                    Drawable d = ContextCompat.getDrawable(getParentActivity(), R.drawable.squzi_badge);
+                                    if (d != null) {
+                                        ColoredImageSpan span = new ColoredImageSpan(d);
+                                        span.setSize(AndroidUtilities.dp(18));
+                                        squziSb.append(" ");
+                                        int s = squziSb.length();
+                                        squziSb.append("x");
+                                        squziSb.setSpan(span, s, s + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    }
+                                } catch (Throwable ignored) {
+                                }
+                            }
+                            squziName = squziSb;
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                    nameTextView[a].setText(squziName);
                 }
                 if (a == 0 && onlineTextOverride != null) {
                     onlineTextView[a].setText(onlineTextOverride);

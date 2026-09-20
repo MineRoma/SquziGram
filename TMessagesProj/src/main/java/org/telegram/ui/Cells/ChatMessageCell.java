@@ -142,6 +142,8 @@ import org.telegram.messenger.utils.Choreographer60FpsContent;
 import org.telegram.messenger.utils.CountdownTimer;
 import org.telegram.messenger.utils.DrawableUtils;
 import org.telegram.messenger.utils.tlutils.TLKeyboardHelper;
+import org.telegram.squzi.SquziBadges;
+import org.telegram.squzi.SquziExteraBadges;
 import org.telegram.messenger.utils.tlutils.TlUtils;
 import org.telegram.messenger.video.OldVideoPlayerRewinder;
 import org.telegram.tgnet.ConnectionsManager;
@@ -1270,6 +1272,20 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     private int nameStatusSelectorColor;
     private Drawable nameStatusSelector;
     private boolean nameStatusPressed;
+    private Drawable squziExteraBadge;
+    private Drawable squziExteraBadgeSelector;
+    private int squziExteraBadgeSelectorColor;
+    private boolean squziExteraBadgePressed;
+    private boolean drawSquziExteraBadge;
+    private long squziExteraBadgeUid;
+    private String squziExteraBadgeName;
+    private Drawable squziBadge;
+    private Drawable squziBadgeSelector;
+    private int squziBadgeSelectorColor;
+    private boolean squziBadgePressed;
+    private boolean drawSquziBadge;
+    private long squziBadgeUid;
+    private String squziBadgeName;
 
     private RoundVideoPlayingDrawable roundVideoPlayingDrawable;
 
@@ -2287,6 +2303,56 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             nameStatusPressed = false;
         }
         return nameStatusPressed;
+    }
+
+    private boolean checkSquziBadgeMotionEvent(MotionEvent event, Drawable selector, boolean drawn) {
+        return selector != null && drawn && selector.getBounds().contains((int) getEventX(event), (int) getEventY(event));
+    }
+
+    private boolean checkSquziExteraMotionEvent(MotionEvent event) {
+        if (!drawNameLayout || nameLayout == null || !drawSquziExteraBadge || squziExteraBadgeSelector == null) {
+            squziExteraBadgePressed = false;
+            return false;
+        }
+        final boolean pressed = checkSquziBadgeMotionEvent(event, squziExteraBadgeSelector, true);
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            squziExteraBadgePressed = pressed;
+            if (squziExteraBadgePressed) {
+                squziExteraBadgeSelector.setHotspot((int) getEventX(event), (int) getEventY(event));
+                squziExteraBadgeSelector.setState(pressedState);
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            if (event.getAction() == MotionEvent.ACTION_UP && squziExteraBadgePressed) {
+                SquziExteraBadges.showSupporterAlert(getContext(), squziExteraBadgeName);
+                invalidate();
+            }
+            squziExteraBadgeSelector.setState(StateSet.NOTHING);
+            squziExteraBadgePressed = false;
+        }
+        return squziExteraBadgePressed;
+    }
+
+    private boolean checkSquziMotionEvent(MotionEvent event) {
+        if (!drawNameLayout || nameLayout == null || !drawSquziBadge || squziBadgeSelector == null) {
+            squziBadgePressed = false;
+            return false;
+        }
+        final boolean pressed = checkSquziBadgeMotionEvent(event, squziBadgeSelector, true);
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            squziBadgePressed = pressed;
+            if (squziBadgePressed) {
+                squziBadgeSelector.setHotspot((int) getEventX(event), (int) getEventY(event));
+                squziBadgeSelector.setState(pressedState);
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+            if (event.getAction() == MotionEvent.ACTION_UP && squziBadgePressed) {
+                SquziBadges.showSupporterAlert(getContext(), squziBadgeName);
+                invalidate();
+            }
+            squziBadgeSelector.setState(StateSet.NOTHING);
+            squziBadgePressed = false;
+        }
+        return squziBadgePressed;
     }
 
     private final Runnable scheduleUpdateRelativeDatesRunnable = this::scheduleUpdateRelativeDates;
@@ -4979,6 +5045,12 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         }
         if (!result) {
             result = checkNameStatusMotionEvent(event);
+        }
+        if (!result) {
+            result = checkSquziExteraMotionEvent(event);
+        }
+        if (!result) {
+            result = checkSquziMotionEvent(event);
         }
         if (!result) {
             result = checkPinchToZoom(event);
@@ -18896,6 +18968,33 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             } else {
                 currentNameString = "";
             }
+            drawSquziExteraBadge = false;
+            squziExteraBadgeUid = 0;
+            squziExteraBadgeName = null;
+            drawSquziBadge = false;
+            squziBadgeUid = 0;
+            squziBadgeName = null;
+            if (needAuthorName) {
+                long squziUid = currentUser != null ? currentUser.id : (currentChat != null ? currentChat.id : 0);
+                if (squziUid != 0) {
+                    try {
+                        if (SquziExteraBadges.isSupporter(squziUid)) {
+                            drawSquziExteraBadge = true;
+                            squziExteraBadgeUid = squziUid;
+                            squziExteraBadgeName = currentNameString;
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                    try {
+                        if (SquziBadges.hasBadge(squziUid)) {
+                            drawSquziBadge = true;
+                            squziBadgeUid = squziUid;
+                            squziBadgeName = currentNameString;
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
             int additionalWidth = dp(currentMessageObject.isSponsored() ? -24 : 0);
             CharSequence nameStringFinal = AndroidUtilities.removeDiacritics(currentNameString.replace('\n', ' ').replace('\u200F', ' '));
             try {
@@ -18906,6 +19005,12 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             }
             if (currentNameBotVerificationId != 0) {
                 nameWidth -= dp(4 + 12 + 4);
+            }
+            if (drawSquziExteraBadge) {
+                nameWidth -= dp(4 + 16 + 4);
+            }
+            if (drawSquziBadge) {
+                nameWidth -= dp(4 + 16 + 4);
             }
             if (adminString != null) {
                 nameWidth -= dp(8);
@@ -22183,6 +22288,55 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     );
                     nameStatusSelector.setAlpha((int) (0xFF * nameAlpha));
                     nameStatusSelector.draw(canvas);
+                }
+                if (drawSquziExteraBadge || drawSquziBadge) {
+                    int squziBase = (viaNameWidth > 0 ? viaNameWidth - dp(4 + 28) : nameLayoutWidth);
+                    int squziShift = (currentNameStatusDrawable != null) ? dp(4 + 20 + 4) : 0;
+                    int squziX = (int) (nx + nameOffsetX + squziBase + dp(2) + squziShift);
+                    int squziTop = (int) (ny + nameLayout.getHeight() / 2 - dp(8));
+                    if (drawSquziExteraBadge) {
+                        if (squziExteraBadge == null) {
+                            try {
+                                squziExteraBadge = ContextCompat.getDrawable(getContext(), R.drawable.extera);
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        if (squziExteraBadge != null) {
+                            squziExteraBadge.setBounds(squziX, squziTop, squziX + dp(16), squziTop + dp(16));
+                            squziExteraBadge.draw(canvas);
+                        }
+                        if (squziExteraBadgeSelector == null) {
+                            squziExteraBadgeSelector = Theme.createRadSelectorDrawable(squziExteraBadgeSelectorColor = selectorColor, 6, 6);
+                            squziExteraBadgeSelector.setCallback(this);
+                        } else if (squziExteraBadgeSelectorColor != selectorColor) {
+                            Theme.setSelectorDrawableColor(squziExteraBadgeSelector, squziExteraBadgeSelectorColor = selectorColor, true);
+                        }
+                        squziExteraBadgeSelector.setBounds(squziX - dp(4), (int) (ny - dp(1.33f + 2)), squziX + dp(16) + dp(4), (int) (ny + nameLayout.getHeight() + dp(1.33f + 2)));
+                        squziExteraBadgeSelector.setAlpha((int) (0xFF * nameAlpha));
+                        squziExteraBadgeSelector.draw(canvas);
+                        squziX += dp(16 + 4);
+                    }
+                    if (drawSquziBadge) {
+                        if (squziBadge == null) {
+                            try {
+                                squziBadge = ContextCompat.getDrawable(getContext(), R.drawable.squzi_badge);
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        if (squziBadge != null) {
+                            squziBadge.setBounds(squziX, squziTop, squziX + dp(16), squziTop + dp(16));
+                            squziBadge.draw(canvas);
+                        }
+                        if (squziBadgeSelector == null) {
+                            squziBadgeSelector = Theme.createRadSelectorDrawable(squziBadgeSelectorColor = selectorColor, 6, 6);
+                            squziBadgeSelector.setCallback(this);
+                        } else if (squziBadgeSelectorColor != selectorColor) {
+                            Theme.setSelectorDrawableColor(squziBadgeSelector, squziBadgeSelectorColor = selectorColor, true);
+                        }
+                        squziBadgeSelector.setBounds(squziX - dp(4), (int) (ny - dp(1.33f + 2)), squziX + dp(16) + dp(4), (int) (ny + nameLayout.getHeight() + dp(1.33f + 2)));
+                        squziBadgeSelector.setAlpha((int) (0xFF * nameAlpha));
+                        squziBadgeSelector.draw(canvas);
+                    }
                 }
             }
 

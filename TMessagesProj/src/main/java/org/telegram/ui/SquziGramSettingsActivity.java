@@ -207,8 +207,7 @@ public class SquziGramSettingsActivity extends BaseFragment {
         }
         LinearLayout accentRow = makeSimpleRow(context, "Цветовой акцент", accentValue);
         accentRow.setOnClickListener(v -> {
-            SquziAppearance.showAccentDialog(SquziGramSettingsActivity.this);
-            fillAppearance();
+            SquziAppearance.showAccentDialog(SquziGramSettingsActivity.this, this::fillAppearance);
         });
         appearanceContainer.addView(accentRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 12, 0, 12, 1));
 
@@ -222,6 +221,24 @@ public class SquziGramSettingsActivity extends BaseFragment {
         LinearLayout avatarRow = makeSimpleRow(context, "Скругление аватарок", avatarValue);
         avatarRow.setOnClickListener(v -> SquziAppearance.showAvatarDialog(SquziGramSettingsActivity.this, this::fillAppearance));
         appearanceContainer.addView(avatarRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 12, 0, 12, 1));
+
+        String exteraValue;
+        try {
+            exteraValue = org.telegram.squzi.SquziExteraBadges.isEnabled()
+                    ? "Вкл • " + org.telegram.squzi.SquziExteraBadges.count()
+                    : "Выкл";
+        } catch (Throwable t) {
+            exteraValue = "Вкл";
+        }
+        LinearLayout exteraRow = makeSimpleRow(context, "Бейджи Extera", exteraValue);
+        exteraRow.setOnClickListener(v -> {
+            try {
+                org.telegram.squzi.SquziExteraBadges.setEnabled(!org.telegram.squzi.SquziExteraBadges.isEnabled());
+            } catch (Throwable ignored) {
+            }
+            fillAppearance();
+        });
+        appearanceContainer.addView(exteraRow, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 12, 0, 12, 1));
     }
 
     private LinearLayout makeSimpleRow(Context context, String title, String value) {

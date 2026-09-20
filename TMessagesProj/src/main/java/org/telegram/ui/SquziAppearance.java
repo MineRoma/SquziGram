@@ -21,7 +21,7 @@ import org.telegram.ui.Components.LayoutHelper;
 // SquziGram: диалог выбора цветового акцента и скругления аватарок.
 public class SquziAppearance {
 
-    public static void showAccentDialog(final BaseFragment fragment) {
+    public static void showAccentDialog(final BaseFragment fragment, final Runnable onDone) {
         final Context context = fragment.getParentActivity();
         if (context == null) {
             return;
@@ -45,6 +45,12 @@ public class SquziAppearance {
             swatch.setBackground(Theme.createCircleDrawable(AndroidUtilities.dp(44), color));
             swatch.setOnClickListener(v -> {
                 SquziCustomization.setAccent(true, color);
+                if (onDone != null) {
+                    try {
+                        onDone.run();
+                    } catch (Throwable ignored) {
+                    }
+                }
                 try {
                     fragment.dismissCurrentDialog();
                 } catch (Throwable ignored) {
@@ -79,6 +85,12 @@ public class SquziAppearance {
                 return;
             }
             SquziCustomization.setAccent(true, parsed);
+            if (onDone != null) {
+                try {
+                    onDone.run();
+                } catch (Throwable ignored) {
+                }
+            }
             try {
                 fragment.dismissCurrentDialog();
             } catch (Throwable ignored) {
@@ -91,7 +103,15 @@ public class SquziAppearance {
         builder.setTitle("Цветовой акцент");
         builder.setView(content);
         builder.setPositiveButton("Готово", null);
-        builder.setNegativeButton("Выключить", (dialog, which) -> SquziCustomization.setAccent(false, SquziCustomization.getAccentColor()));
+        builder.setNegativeButton("Выключить", (dialog, which) -> {
+            SquziCustomization.setAccent(false, SquziCustomization.getAccentColor());
+            if (onDone != null) {
+                try {
+                    onDone.run();
+                } catch (Throwable ignored) {
+                }
+            }
+        });
         try {
             fragment.showDialog(builder.create());
         } catch (Throwable ignored) {
