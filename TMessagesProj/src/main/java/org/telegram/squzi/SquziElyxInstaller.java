@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -389,7 +390,9 @@ public class SquziElyxInstaller {
         if (trimmed.startsWith("{")) {
             try {
                 JSONObject o = new JSONObject(trimmed);
-                for (String key : o.keySet()) {
+                Iterator<String> keys = o.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
                     map.put(normalizeKey(key), o.optString(key, ""));
                 }
                 return map;

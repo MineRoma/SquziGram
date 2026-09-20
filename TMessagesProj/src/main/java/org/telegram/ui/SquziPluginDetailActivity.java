@@ -36,7 +36,7 @@ public class SquziPluginDetailActivity extends BaseFragment {
         SquziPluginDetailActivity fragment = new SquziPluginDetailActivity();
         Bundle args = new Bundle();
         args.putString("plugin_id", pluginId);
-        fragment.setArguments(args);
+        fragment.arguments = args;
         return fragment;
     }
 
