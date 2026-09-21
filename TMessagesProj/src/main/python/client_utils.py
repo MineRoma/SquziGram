@@ -60,6 +60,11 @@ def run_on_stage_queue(func):
     run_on_queue(func)
 
 
+def send_text(peer, text, notify=True):
+    """ExteraGram-style send: account defaults to the selected one."""
+    send_message(selected_account(), peer, text, notify=notify)
+
+
 def send_message(account, peer, text, notify=True):
     """Send a text message. Always hops to the UI thread."""
     def _do():

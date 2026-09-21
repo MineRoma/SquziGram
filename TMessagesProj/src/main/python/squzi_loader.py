@@ -44,12 +44,16 @@ def load_plugin_file(path, plugin_id):
     try:
         module_name = "squzi_plugin_" + str(plugin_id)
         sys.modules.pop(module_name, None)
-        spec = importlib.util.spec_from_file_location(module_name, path)
-        if spec is None or spec.loader is None:
+        # .plugin — нестандартное расширение: spec_from_file_location
+        # не находит лоадер, грузим явно через SourceFileLoader.
+        from importlib.machinery import SourceFileLoader
+        loader = SourceFileLoader(module_name, path)
+        spec = importlib.util.spec_from_loader(module_name, loader)
+        if spec is None:
             return "bad spec"
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module
-        spec.loader.exec_module(module)
+        loader.exec_module(module)
         cls = _find_plugin_class(module)
         if cls is None:
             sys.modules.pop(module_name, None)
