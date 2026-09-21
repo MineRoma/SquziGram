@@ -11434,7 +11434,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 try {
                                     Drawable d = ContextCompat.getDrawable(getParentActivity(), R.drawable.extera);
                                     if (d != null) {
-                                        d.setBounds(0, 0, AndroidUtilities.dp(18), AndroidUtilities.dp(18));
+                                        d.setBounds(0, 0, AndroidUtilities.dp(27), AndroidUtilities.dp(27));
                                         squziSb.append(" ");
                                         int s = squziSb.length();
                                         squziSb.append("x");
@@ -11447,7 +11447,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 try {
                                     Drawable d = ContextCompat.getDrawable(getParentActivity(), R.drawable.squzi_badge);
                                     if (d != null) {
-                                        d.setBounds(0, 0, AndroidUtilities.dp(18), AndroidUtilities.dp(18));
+                                        d.setBounds(0, 0, AndroidUtilities.dp(27), AndroidUtilities.dp(27));
                                         squziSb.append(" ");
                                         int s = squziSb.length();
                                         squziSb.append("x");

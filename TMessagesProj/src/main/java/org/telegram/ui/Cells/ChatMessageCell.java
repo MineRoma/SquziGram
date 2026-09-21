@@ -5041,16 +5041,16 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             result = checkAdminMotionEvent(event);
         }
         if (!result) {
-            result = checkNameMotionEvent(event);
-        }
-        if (!result) {
-            result = checkNameStatusMotionEvent(event);
-        }
-        if (!result) {
             result = checkSquziExteraMotionEvent(event);
         }
         if (!result) {
             result = checkSquziMotionEvent(event);
+        }
+        if (!result) {
+            result = checkNameMotionEvent(event);
+        }
+        if (!result) {
+            result = checkNameStatusMotionEvent(event);
         }
         if (!result) {
             result = checkPinchToZoom(event);
@@ -19007,10 +19007,10 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 nameWidth -= dp(4 + 12 + 4);
             }
             if (drawSquziExteraBadge) {
-                nameWidth -= dp(4 + 16 + 4);
+                nameWidth -= dp(4 + 24 + 4);
             }
             if (drawSquziBadge) {
-                nameWidth -= dp(4 + 16 + 4);
+                nameWidth -= dp(4 + 24 + 4);
             }
             if (adminString != null) {
                 nameWidth -= dp(8);
@@ -22290,10 +22290,12 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     nameStatusSelector.draw(canvas);
                 }
                 if (drawSquziExteraBadge || drawSquziBadge) {
+                    int badgeSize = dp(24);
+                    int badgeHalf = dp(12);
                     int squziBase = (viaNameWidth > 0 ? viaNameWidth - dp(4 + 28) : nameLayoutWidth);
                     int squziShift = (currentNameStatusDrawable != null) ? dp(4 + 20 + 4) : 0;
                     int squziX = (int) (nx + nameOffsetX + squziBase + dp(2) + squziShift);
-                    int squziTop = (int) (ny + nameLayout.getHeight() / 2 - dp(8));
+                    int squziTop = (int) (ny + nameLayout.getHeight() / 2 - badgeHalf);
                     if (drawSquziExteraBadge) {
                         if (squziExteraBadge == null) {
                             try {
@@ -22302,7 +22304,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                             }
                         }
                         if (squziExteraBadge != null) {
-                            squziExteraBadge.setBounds(squziX, squziTop, squziX + dp(16), squziTop + dp(16));
+                            squziExteraBadge.setBounds(squziX, squziTop, squziX + badgeSize, squziTop + badgeSize);
                             squziExteraBadge.draw(canvas);
                         }
                         if (squziExteraBadgeSelector == null) {
@@ -22311,10 +22313,10 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         } else if (squziExteraBadgeSelectorColor != selectorColor) {
                             Theme.setSelectorDrawableColor(squziExteraBadgeSelector, squziExteraBadgeSelectorColor = selectorColor, true);
                         }
-                        squziExteraBadgeSelector.setBounds(squziX - dp(4), (int) (ny - dp(1.33f + 2)), squziX + dp(16) + dp(4), (int) (ny + nameLayout.getHeight() + dp(1.33f + 2)));
+                        squziExteraBadgeSelector.setBounds(squziX - dp(4), (int) (ny - dp(1.33f + 2)), squziX + badgeSize + dp(4), (int) (ny + nameLayout.getHeight() + dp(1.33f + 2)));
                         squziExteraBadgeSelector.setAlpha((int) (0xFF * nameAlpha));
                         squziExteraBadgeSelector.draw(canvas);
-                        squziX += dp(16 + 4);
+                        squziX += badgeSize + dp(4);
                     }
                     if (drawSquziBadge) {
                         if (squziBadge == null) {
@@ -22324,7 +22326,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                             }
                         }
                         if (squziBadge != null) {
-                            squziBadge.setBounds(squziX, squziTop, squziX + dp(16), squziTop + dp(16));
+                            squziBadge.setBounds(squziX, squziTop, squziX + badgeSize, squziTop + badgeSize);
                             squziBadge.draw(canvas);
                         }
                         if (squziBadgeSelector == null) {
@@ -22333,7 +22335,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         } else if (squziBadgeSelectorColor != selectorColor) {
                             Theme.setSelectorDrawableColor(squziBadgeSelector, squziBadgeSelectorColor = selectorColor, true);
                         }
-                        squziBadgeSelector.setBounds(squziX - dp(4), (int) (ny - dp(1.33f + 2)), squziX + dp(16) + dp(4), (int) (ny + nameLayout.getHeight() + dp(1.33f + 2)));
+                        squziBadgeSelector.setBounds(squziX - dp(4), (int) (ny - dp(1.33f + 2)), squziX + badgeSize + dp(4), (int) (ny + nameLayout.getHeight() + dp(1.33f + 2)));
                         squziBadgeSelector.setAlpha((int) (0xFF * nameAlpha));
                         squziBadgeSelector.draw(canvas);
                     }

@@ -2408,7 +2408,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             }
         }
         if (drawSquziExteraBadge) {
-            int w = dp(6 + 20 + 6);
+            int w = dp(6 + 30 + 6);
             nameWidth -= w;
             nameAdditionalsForChannelSubscriber += w;
             if (LocaleController.isRTL) {
@@ -2416,7 +2416,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             }
         }
         if (drawSquziBadge) {
-            int w = dp(6 + 20 + 6);
+            int w = dp(6 + 30 + 6);
             nameWidth -= w;
             nameAdditionalsForChannelSubscriber += w;
             if (LocaleController.isRTL) {
@@ -4555,6 +4555,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                 (drawScam == 1 ? Theme.dialogs_scamDrawable : Theme.dialogs_fakeDrawable).draw(canvas);
             }
             if (drawSquziExteraBadge || drawSquziBadge) {
+                int badgeSize = dp(30);
                 int squziDx = 0;
                 if (drawVerified) {
                     squziDx = dp(6) + Theme.dialogs_verifiedDrawable.getIntrinsicWidth();
@@ -4576,13 +4577,13 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                         }
                     }
                     if (squziExteraDrawable != null) {
-                        squziExteraDrawable.setBounds(squziX, squziY, squziX + dp(20), squziY + dp(20));
+                        squziExteraDrawable.setBounds(squziX, squziY, squziX + badgeSize, squziY + badgeSize);
                         squziExteraDrawable.draw(canvas);
                         if (squziExteraRect == null) {
                             squziExteraRect = new RectF();
                         }
-                        squziExteraRect.set(squziX, squziY, squziX + dp(20), squziY + dp(20));
-                        squziX += dp(20 + 6);
+                        squziExteraRect.set(squziX, squziY, squziX + badgeSize, squziY + badgeSize);
+                        squziX += badgeSize + dp(6);
                     } else if (squziExteraRect != null) {
                         squziExteraRect.setEmpty();
                     }
@@ -4597,12 +4598,12 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                         }
                     }
                     if (squziDrawable != null) {
-                        squziDrawable.setBounds(squziX, squziY, squziX + dp(20), squziY + dp(20));
+                        squziDrawable.setBounds(squziX, squziY, squziX + badgeSize, squziY + badgeSize);
                         squziDrawable.draw(canvas);
                         if (squziRect == null) {
                             squziRect = new RectF();
                         }
-                        squziRect.set(squziX, squziY, squziX + dp(20), squziY + dp(20));
+                        squziRect.set(squziX, squziY, squziX + badgeSize, squziY + badgeSize);
                     } else if (squziRect != null) {
                         squziRect.setEmpty();
                     }

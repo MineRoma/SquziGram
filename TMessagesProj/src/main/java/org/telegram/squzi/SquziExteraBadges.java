@@ -79,6 +79,13 @@ public class SquziExteraBadges {
         }
     }
 
+    public static void warmup() {
+        try {
+            ensureLoaded();
+        } catch (Throwable ignored) {
+        }
+    }
+
     private static void ensureLoaded() {
         if (loaded) {
             return;

@@ -329,6 +329,16 @@ public class ApplicationLoader extends Application {
         } catch (UnsatisfiedLinkError error) {
             throw new RuntimeException("can't load native libraries " +  Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder());
         }
+
+        // SquziGram: греем кэш бейджей чтобы не было задержки при открытии
+        try {
+            org.telegram.squzi.SquziExteraBadges.warmup();
+        } catch (Throwable ignored) {
+        }
+        try {
+            org.telegram.squzi.SquziBadges.warmup();
+        } catch (Throwable ignored) {
+        }
         new ForegroundDetector(this) {
             @Override
             public void onActivityStarted(Activity activity) {

@@ -19625,6 +19625,61 @@ public class ChatActivity extends BaseFragment implements
             leftIcon = avatarContainer.getBotVerificationDrawable(DialogObject.getBotVerificationIcon(currentUser), false);
         }
         avatarContainer.setTitleIcons(leftIcon, rightIcon);
+        try {
+            long squziUid = currentUser != null ? currentUser.id : (currentChat != null ? currentChat.id : 0);
+            org.telegram.ui.ActionBar.SimpleTextView titleView = avatarContainer != null ? avatarContainer.getTitleTextView() : null;
+            if (squziUid != 0 && titleView != null) {
+                boolean hasExtera = false;
+                boolean hasSquzi = false;
+                try {
+                    hasExtera = org.telegram.squzi.SquziExteraBadges.isSupporter(squziUid);
+                } catch (Throwable ignored) {
+                }
+                try {
+                    hasSquzi = org.telegram.squzi.SquziBadges.hasBadge(squziUid);
+                } catch (Throwable ignored) {
+                }
+                if (hasExtera || hasSquzi) {
+                    CharSequence cur = titleView.getText();
+                    boolean already = false;
+                    if (cur instanceof android.text.Spanned) {
+                        Object[] spans = ((android.text.Spanned) cur).getSpans(0, cur.length(), android.text.style.ImageSpan.class);
+                        already = spans != null && spans.length > 0;
+                    }
+                    if (!already) {
+                        android.text.SpannableStringBuilder sb = new android.text.SpannableStringBuilder(cur);
+                        if (hasExtera) {
+                            try {
+                                android.graphics.drawable.Drawable d = androidx.core.content.ContextCompat.getDrawable(getParentActivity(), R.drawable.extera);
+                                if (d != null) {
+                                    d.setBounds(0, 0, AndroidUtilities.dp(20), AndroidUtilities.dp(20));
+                                    sb.append(" ");
+                                    int s = sb.length();
+                                    sb.append("x");
+                                    sb.setSpan(new android.text.style.ImageSpan(d, android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM), s, s + 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        if (hasSquzi) {
+                            try {
+                                android.graphics.drawable.Drawable d = androidx.core.content.ContextCompat.getDrawable(getParentActivity(), R.drawable.squzi_badge);
+                                if (d != null) {
+                                    d.setBounds(0, 0, AndroidUtilities.dp(20), AndroidUtilities.dp(20));
+                                    sb.append(" ");
+                                    int s = sb.length();
+                                    sb.append("x");
+                                    sb.setSpan(new android.text.style.ImageSpan(d, android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM), s, s + 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                }
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        titleView.setText(sb);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
         if (!forceToggleMuted && muteItem != null) {
             if (isMuted) {
                 muteItem.setRightIconVisibility(View.GONE);
